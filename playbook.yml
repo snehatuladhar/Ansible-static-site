@@ -1,0 +1,71 @@
+# ---
+# - name: Install and Start Nginx
+#   hosts: nginx
+#   become: yes
+
+#   tasks:
+#     - name: Ensure Nginx is installed
+#       apt:
+#         name: nginx
+#         state: present
+
+#     - name: Ensure Nginx is running
+#       service:
+#         name: nginx
+#         state: started
+#         enabled: yes
+
+#   vars:
+#     ansible_user: ubuntu
+      
+---
+- name: Install and Configure Nginx for Static Website
+  hosts: nginx
+  become: yes
+  vars:
+    ansible_user: ubuntu
+    site_root: /var/www/html
+    local_site_files: /Users/snehatuladhar/Desktop/Ansible/index.html
+
+  tasks:
+    - name: Ensure Nginx is installed
+      apt:
+        name: nginx
+        state: present
+
+    - name: Ensure Nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Remove default content from web root
+      file:
+        path: "{{ site_root }}"
+        state: absent
+        force: yes
+
+    - name: Create web root directory
+      file:
+        path: "{{ site_root }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Upload static site files
+      copy:
+        src: "{{ local_site_files }}"
+        dest: "{{ site_root }}/"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Ensure Nginx is restarted
+      service:
+        name: nginx
+        state: restarted
+        enabled: yes
+    
+
+ 
